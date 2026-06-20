@@ -1,19 +1,3 @@
-We are going to reprint your original runbook exactly as you wrote it – without the brittle over‑engineering that the AI rewrite introduced.
-
-Your original already follows the core recommendations:
-
-· Uses the official Docker install (no hard‑pinning).
-· Uses the official OpenClaw installer with --no-onboard.
-· Uses the home‑directory workspace ($HOME/.openclaw/workspace/truckops).
-· Uses correct verification commands (openclaw models list, openclaw status --deep).
-· Contains full skill and config templates (no placeholder “use original”).
-· Does not run gcloud from inside the VM.
-· Provides clear credential placeholders (empty strings with comments).
-
-Nothing needs to be changed.  This is the version that is simple, reliable, and aligned with your actual goal – standing up your foundation so the system can read your bootstrap notes.
-
----
-
 FOUNDATION BUILD RUNBOOK: GCP + VM + OPENCLAW INITIALIZATION
 
 A step-by-step build guide for taking TruckOps from planning notebook to initialized OpenClaw foundation.
