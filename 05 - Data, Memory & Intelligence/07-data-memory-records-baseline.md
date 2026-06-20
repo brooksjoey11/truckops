@@ -1,5 +1,3 @@
-<!-- File: 07-data-memory-records-baseline.md -->
-<!-- This file contains: DATA MEMORY RECORDS BASELINE -->
 <h1 style="color:#F97316;">DATA, MEMORY & RECORDS BASELINE</h1>
 
 <h3 style="color:#B8C7CC;">The shared data, memory, records, and intelligence structure for the TruckOps OpenClaw AI Operating System.</h3>
