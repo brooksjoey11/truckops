@@ -1,5 +1,3 @@
-<!-- File: 09-development-testing-release-process.md -->
-<!-- This file contains: DEVELOPMENT TESTING RELEASE PROCESS -->
 <h1 style="color:#F97316;">DEVELOPMENT, TESTING & RELEASE PROCESS</h1>
 <h3 style="color:#B8C7CC;">The process for safely building, testing, improving, releasing, and documenting TruckOps features without breaking the operational system.</h3>
 <hr>
