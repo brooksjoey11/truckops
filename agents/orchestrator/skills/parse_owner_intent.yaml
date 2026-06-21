@@ -1,0 +1,104 @@
+# Skill: parse_owner_intent
+# Version: 1.0.0
+#
+# Converts raw owner input into a structured intent object.
+# This skill is always the first step in any Orchestrator workflow.
+
+skill:
+  id: parse_owner_intent
+  display_name: Parse Owner Intent
+  version: "1.0.0"
+  description: >
+    Converts owner input (natural language or structured command) into a structured
+    intent object that identifies the business domain, intent type, urgency, candidate
+    agents, missing information, and whether owner confirmation will be required.
+  trigger: on_demand
+  invoked_by: orchestrator_internal
+
+input_schema:
+  type: object
+  required:
+    - session_id
+    - owner_message
+    - timestamp
+  properties:
+    session_id:
+      type: string
+      description: Conversation session ID
+    owner_message:
+      type: string
+      description: Raw owner input — natural language or structured command
+    timestamp:
+      type: string
+      format: date-time
+      description: Message timestamp (ISO-8601)
+    context_refs:
+      type: array
+      items:
+        type: string
+      description: Optional record IDs or memory IDs for additional context
+
+output_schema:
+  type: object
+  required:
+    - intent_id
+    - primary_domain
+    - intent_type
+    - urgency
+    - requires_specialist
+    - candidate_agents
+    - missing_information
+    - owner_confirmation_required
+    - structured_task
+  properties:
+    intent_id:
+      type: string
+      format: uuid
+    primary_domain:
+      type: string
+      enum:
+        - dispatch
+        - compliance
+        - documents
+        - finance
+        - maintenance
+        - daily_briefing
+        - development
+        - unknown
+    intent_type:
+      type: string
+      enum:
+        - ask
+        - command
+        - update
+        - reminder
+        - status_check
+        - decision_request
+    urgency:
+      type: string
+      enum:
+        - low
+        - normal
+        - high
+        - critical
+    requires_specialist:
+      type: boolean
+    candidate_agents:
+      type: array
+      items:
+        type: string
+    missing_information:
+      type: array
+      items:
+        type: string
+    owner_confirmation_required:
+      type: boolean
+    structured_task:
+      type: object
+
+failure_conditions:
+  - Owner request cannot be assigned to a domain
+  - Required context is missing
+  - Request conflicts with current system state
+
+error_code: ORC-INTENT-001

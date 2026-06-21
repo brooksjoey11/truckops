@@ -1,0 +1,102 @@
+# Workflow: dispatch_intake
+# Version: 1.0.0
+#
+# Handles owner requests related to dispatch, load finding, and load evaluation.
+# This workflow definition can be modified without changing the Orchestrator's core logic.
+
+workflow:
+  id: dispatch_intake
+  display_name: Dispatch Intake
+  version: "1.0.0"
+  description: >
+    Handles owner requests to find loads, evaluate loads, or manage dispatch decisions.
+    Routes the request to the Dispatch Agent after parsing intent and confirming routing.
+    Requires owner confirmation before any load is booked.
+
+  owner_trigger_examples:
+    - "Find me a load for tomorrow."
+    - "Check this load."
+    - "Can we run Dallas next week?"
+    - "Find something from Atlanta toward Dallas."
+    - "What loads are available for the Kenworth next Tuesday?"
+
+  steps:
+    - step_id: parse_owner_intent
+      display_name: Parse Owner Intent
+      handler: orchestrator
+      skill: parse_owner_intent
+      input:
+        pass_through_from: workflow_trigger
+      depends_on: []
+
+    - step_id: route_to_dispatch
+      display_name: Route to Dispatch
+      handler: orchestrator
+      skill: route_task
+      input:
+        pass_through_from: parse_owner_intent
+      depends_on:
+        - parse_owner_intent
+
+    - step_id: dispatch_intake
+      display_name: Dispatch Intake
+      handler: dispatch
+      skill: dispatch_intake
+      input:
+        pass_through_from: parse_owner_intent
+      depends_on:
+        - route_to_dispatch
+      on_handler_unavailable: surface_block_to_owner
+
+    - step_id: evaluate_load_or_search
+      display_name: Evaluate Load or Search
+      handler: dispatch
+      skill: evaluate_load
+      input:
+        pass_through_from: dispatch_intake
+      depends_on:
+        - dispatch_intake
+      on_handler_unavailable: surface_block_to_owner
+
+    - step_id: summarize_dispatch_result
+      display_name: Summarize Dispatch Result
+      handler: orchestrator
+      skill: summarize_status
+      input:
+        summary_type: dispatch
+        source_refs:
+          - evaluate_load_or_search
+      depends_on:
+        - evaluate_load_or_search
+
+    - step_id: request_confirmation_if_booking
+      display_name: Request Owner Confirmation (if booking)
+      handler: orchestrator
+      skill: request_owner_confirmation
+      condition: structured_task.action == "book_load"
+      input:
+        action: "Book load as identified"
+        reason_confirmation_required: "Load booking is an external commitment that cannot be undone without broker contact."
+      depends_on:
+        - summarize_dispatch_result
+
+    - step_id: record_memory
+      display_name: Record Memory
+      handler: orchestrator
+      skill: record_memory
+      input:
+        memory_type: workflow_outcome
+        source: dispatch_intake
+      depends_on:
+        - summarize_dispatch_result
+
+  terminal_states:
+    - completed
+    - blocked_waiting_for_owner
+    - blocked_specialist_unavailable
+    - blocked_missing_required_data
+    - failed
+
+  failure_rule: >
+    The workflow must not silently fail. Any failure must be surfaced to the owner
+    with a clear explanation and recommended next action.

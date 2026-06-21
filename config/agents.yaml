@@ -1,0 +1,128 @@
+# TruckOps Agent Registry Configuration
+# Version: 1.0.0
+#
+# Defines all registered specialist agents and their configuration.
+#
+# The registry is extensible. To add a new agent:
+#   1. Create agents/{canonical_id}/agent.yaml with a valid manifest.
+#   2. Add an entry to this file.
+#   3. No core Orchestrator code requires modification.
+#
+# Do NOT store endpoints or secrets that belong in GCP Secret Manager here.
+
+registry_version: "1.0.0"
+
+agents:
+  - canonical_id: orchestrator
+    display_name: Orchestrator Agent
+    type: owner_interface
+    status: implementation_ready
+    owner_facing: true
+    manifest: "${TRUCKOPS_HOME}/agents/orchestrator/agent.yaml"
+    enabled: true
+
+  - canonical_id: dispatch
+    display_name: Dispatch Agent
+    type: specialist
+    status: specification_ready
+    owner_facing: false
+    manifest: "${TRUCKOPS_HOME}/agents/dispatch/agent.yaml"
+    endpoint: "${DISPATCH_AGENT_ENDPOINT}"   # Set via environment variable
+    enabled: false                            # Enable when implemented
+    required_for_mvp: true
+    skills:
+      - dispatch_intake
+      - evaluate_load
+      - find_loads
+      - match_truck_to_load
+      - book_load
+      - generate_bol
+
+  - canonical_id: document_compliance
+    display_name: Document & Compliance Manager Agent
+    type: specialist
+    status: specification_ready
+    owner_facing: false
+    manifest: "${TRUCKOPS_HOME}/agents/document_compliance/agent.yaml"
+    endpoint: "${DOCUMENT_AGENT_ENDPOINT}"   # Set via environment variable
+    enabled: false                            # Enable when implemented
+    required_for_mvp: false
+    skills:
+      - track_document_expiry
+      - extract_pdf_data
+      - auto_file_report
+      - generate_document
+
+  - canonical_id: invoicing_collections
+    display_name: Invoicing & Collections Agent
+    type: specialist
+    status: planned
+    owner_facing: false
+    manifest: "${TRUCKOPS_HOME}/agents/invoicing_collections/agent.yaml"
+    endpoint: "${INVOICING_AGENT_ENDPOINT}"  # Set via environment variable
+    enabled: false
+    required_for_mvp: false
+    skills:
+      - create_invoice
+      - send_invoice
+      - track_payment
+
+  - canonical_id: broker_intelligence
+    display_name: Broker Intelligence Agent
+    type: specialist
+    status: planned
+    owner_facing: false
+    manifest: "${TRUCKOPS_HOME}/agents/broker_intelligence/agent.yaml"
+    enabled: false
+    required_for_mvp: false
+
+  - canonical_id: maintenance
+    display_name: Maintenance Agent
+    type: specialist
+    status: planned
+    owner_facing: false
+    manifest: "${TRUCKOPS_HOME}/agents/maintenance/agent.yaml"
+    enabled: false
+    required_for_mvp: false
+
+  - canonical_id: fuel_expense
+    display_name: Fuel & Expense Agent
+    type: specialist
+    status: planned
+    owner_facing: false
+    manifest: "${TRUCKOPS_HOME}/agents/fuel_expense/agent.yaml"
+    enabled: false
+    required_for_mvp: false
+
+  - canonical_id: cash_flow
+    display_name: Cash Flow Agent
+    type: specialist
+    status: planned
+    owner_facing: false
+    manifest: "${TRUCKOPS_HOME}/agents/cash_flow/agent.yaml"
+    enabled: false
+    required_for_mvp: false
+
+  - canonical_id: profitability
+    display_name: Profitability Agent
+    type: specialist
+    status: planned
+    owner_facing: false
+    manifest: "${TRUCKOPS_HOME}/agents/profitability/agent.yaml"
+    enabled: false
+    required_for_mvp: false
+
+  - canonical_id: daily_briefing
+    display_name: Daily Briefing Agent
+    type: composite
+    status: planned
+    owner_facing: false
+    manifest: "${TRUCKOPS_HOME}/agents/daily_briefing/agent.yaml"
+    enabled: false
+    required_for_mvp: false
+
+# Registration Rules:
+# - New agents must have a canonical_id, display_name, type, and at least one skill.
+# - New agents must include a manifest path.
+# - Do not duplicate canonical IDs.
+# - Planned agents must not be enabled until their manifest is complete.
