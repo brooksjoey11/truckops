@@ -1,0 +1,6 @@
+id: dispatch
+type: handler
+prompt: ""   # no prompt needed for stub
+skills: []
+workspace: ${TRUCKOPS_HOME}
+entrypoint: handler.py
