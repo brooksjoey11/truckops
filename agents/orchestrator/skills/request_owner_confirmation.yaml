@@ -81,7 +81,7 @@ output_schema:
     selected_option:
       type:
         - string
-        - "null"
+        - null
 
 confirmation_format: |
   CONFIRMATION REQUIRED
