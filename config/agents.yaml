@@ -106,6 +106,6 @@ agents:
 # - canonical_id is required
 # - display_name is required
 # - type is required
-# - At least one skill required for non-planned agents
+# - At least one skill required for agents with status != "planned"
 # - Duplicate canonical_ids are rejected
 # - An agent must not duplicate an existing canonical_id

@@ -46,14 +46,30 @@ echo ""
 # OpenClaw endpoint
 echo "Services:"
 if [[ -n "${OPENCLAW_BASE_URL:-}" ]]; then
-  check "OpenClaw health endpoint responds" 'curl -sf "${OPENCLAW_BASE_URL}/health" &>/dev/null'
+  if curl -sf "${OPENCLAW_BASE_URL}/health" -o /tmp/truckops_health_openclaw.json 2>/tmp/truckops_health_openclaw.err; then
+    echo "  [PASS] OpenClaw health endpoint responds"
+    ((PASS++))
+  else
+    echo "  [FAIL] OpenClaw health endpoint responds"
+    echo "         URL: ${OPENCLAW_BASE_URL}/health"
+    [[ -s /tmp/truckops_health_openclaw.err ]] && echo "         Error: $(cat /tmp/truckops_health_openclaw.err)"
+    ((FAIL++))
+  fi
 else
   echo "  [SKIP] OpenClaw check (OPENCLAW_BASE_URL not set)"
 fi
 
 # Model provider endpoint
 if [[ -n "${MODEL_PROVIDER_ENDPOINT:-}" ]]; then
-  check "Model provider endpoint is reachable" 'curl -sf --head "${MODEL_PROVIDER_ENDPOINT}" &>/dev/null'
+  if curl -sf --head "${MODEL_PROVIDER_ENDPOINT}" -o /dev/null 2>/tmp/truckops_health_model.err; then
+    echo "  [PASS] Model provider endpoint is reachable (${MODEL_PROVIDER_NAME:-unknown})"
+    ((PASS++))
+  else
+    echo "  [FAIL] Model provider endpoint is reachable"
+    echo "         URL: ${MODEL_PROVIDER_ENDPOINT}"
+    [[ -s /tmp/truckops_health_model.err ]] && echo "         Error: $(cat /tmp/truckops_health_model.err)"
+    ((FAIL++))
+  fi
 else
   echo "  [SKIP] Model provider check (MODEL_PROVIDER_ENDPOINT not set)"
 fi

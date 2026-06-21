@@ -45,4 +45,7 @@ output_schema:
     next_actions:
       type: array
 
+# Environment variable ${TRUCKOPS_HOME} is resolved by the Orchestrator runtime
+# before this YAML is evaluated. The runtime reads TRUCKOPS_HOME from the process
+# environment. No YAML parser-level substitution is required.
 summarization_prompt_ref: ${TRUCKOPS_HOME}/agents/orchestrator/prompts/summarization.md

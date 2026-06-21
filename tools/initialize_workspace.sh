@@ -51,8 +51,8 @@ test -d "$TRUCKOPS_HOME/config" \
 
 echo ""
 echo "Next steps:"
-echo "  1. Copy config templates: cp config/*.yaml \$TRUCKOPS_HOME/config/"
-echo "  2. Copy agent templates:  cp -r agents/orchestrator \$TRUCKOPS_HOME/agents/"
-echo "  3. Edit \$TRUCKOPS_HOME/config/workspace.yaml with your settings"
+echo "  1. Copy config templates: cp config/*.yaml \"$TRUCKOPS_HOME/config/\""
+echo "  2. Copy agent templates:  cp -r agents/orchestrator \"$TRUCKOPS_HOME/agents/\""
+echo "  3. Edit \"$TRUCKOPS_HOME/config/workspace.yaml\" with your settings"
 echo "  4. Store secrets in GCP Secret Manager (see config/secrets.example.yaml)"
 echo "  5. Set required environment variables (see 02 - Foundation & Infrastructure/05-canonical-workspace-structure.md)"

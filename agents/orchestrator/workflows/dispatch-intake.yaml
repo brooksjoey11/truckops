@@ -49,7 +49,10 @@ steps:
     description: Request confirmation before any booking action
     depends_on:
       - summarize_dispatch_result
-    condition: requires_confirmation == true
+    # Condition evaluation: the Orchestrator runtime evaluates this expression
+    # against the output of the previous step. "requires_confirmation" is a boolean
+    # field returned in the parse_owner_intent output schema.
+    condition: "requires_confirmation == true"
 
   - id: record_memory
     handler: orchestrator
