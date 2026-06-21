@@ -638,7 +638,7 @@ FORENSIC ANALYSIS FAILED: Supplied material is unreadable or unusable: [specific
 
 <p>Produce the dossier in the exact structure below.</p>
 
-<h1 style="color:#F97316;">======= FORENSIC DOSSIER: [SUBJECT NAME] =======</h1>
+<h1 style="color:#F97316;">FORENSIC DOSSIER: [SUBJECT NAME]</h1>
 
 <p><strong>Dossier ID:</strong> [SUBJECT-ID]-FD-[YYYYMMDD]-001<br>
 <strong>Date:</strong> [YYYY-MM-DD]<br>
