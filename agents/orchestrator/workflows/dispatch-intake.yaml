@@ -52,7 +52,7 @@ steps:
     # Condition evaluation: the Orchestrator runtime evaluates this expression
     # against the output of the previous step. "requires_confirmation" is a boolean
     # field returned in the parse_owner_intent output schema.
-    condition: "requires_confirmation == true"
+    condition: requires_confirmation
 
   - id: record_memory
     handler: orchestrator
