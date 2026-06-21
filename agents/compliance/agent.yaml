@@ -1,0 +1,6 @@
+id: compliance
+type: handler
+prompt: ""
+skills: []
+workspace: ${TRUCKOPS_HOME}
+entrypoint: handler.py
