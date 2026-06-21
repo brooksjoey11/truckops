@@ -1,0 +1,105 @@
+# Workflow: daily_briefing
+# Version: 1.0.0
+#
+# Produces the TruckOps daily briefing for the owner.
+# This workflow definition can be modified without changing the Orchestrator's core logic.
+
+workflow:
+  id: daily_briefing
+  display_name: Daily Briefing
+  version: "1.0.0"
+  description: >
+    Produces a comprehensive daily briefing for the owner covering dispatch, compliance,
+    finance, open loops, and any items requiring owner attention or decisions.
+    This workflow runs entirely within the Orchestrator using shared records and memory.
+
+  owner_trigger_examples:
+    - "Give me the morning brief."
+    - "What needs attention today?"
+    - "Give me the TruckOps daily briefing."
+    - "What's on the board today?"
+
+  steps:
+    - step_id: collect_open_dispatch_items
+      display_name: Collect Open Dispatch Items
+      handler: orchestrator
+      skill: summarize_status
+      input:
+        summary_type: dispatch
+        source_refs:
+          - records/dispatch/
+          - records/open-loops/
+      depends_on: []
+
+    - step_id: collect_compliance_items
+      display_name: Collect Compliance Items
+      handler: orchestrator
+      skill: summarize_status
+      input:
+        summary_type: compliance
+        source_refs:
+          - records/compliance/
+          - records/documents/
+      depends_on: []
+
+    - step_id: collect_financial_items
+      display_name: Collect Financial Items
+      handler: orchestrator
+      skill: summarize_status
+      input:
+        summary_type: system
+        source_refs:
+          - records/invoices/
+          - records/expenses/
+      depends_on: []
+
+    - step_id: collect_development_items
+      display_name: Collect Development Items
+      handler: orchestrator
+      skill: summarize_status
+      input:
+        summary_type: system
+        source_refs:
+          - logs/releases/
+          - records/open-loops/
+      depends_on: []
+
+    - step_id: summarize_daily_briefing
+      display_name: Summarize Daily Briefing
+      handler: orchestrator
+      skill: summarize_status
+      input:
+        summary_type: daily
+        source_refs:
+          - collect_open_dispatch_items
+          - collect_compliance_items
+          - collect_financial_items
+          - collect_development_items
+      depends_on:
+        - collect_open_dispatch_items
+        - collect_compliance_items
+        - collect_financial_items
+        - collect_development_items
+
+  parallel_steps:
+    # These steps can run in parallel before summarization
+    - collect_open_dispatch_items
+    - collect_compliance_items
+    - collect_financial_items
+    - collect_development_items
+
+  terminal_states:
+    - completed
+    - partial_completed
+    - failed
+
+  briefing_sections:
+    # Customize which sections appear in the daily briefing by editing this list.
+    # Remove sections that are not relevant to your operation.
+    - what_needs_attention_today
+    - dispatch_items
+    - compliance_or_document_deadlines
+    - open_loops
+    - decisions_needed
+    - system_issues
+    - recommended_next_actions

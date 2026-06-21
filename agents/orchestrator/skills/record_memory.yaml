@@ -1,0 +1,79 @@
+# Skill: record_memory
+# Version: 1.0.0
+#
+# Saves useful operational facts, decisions, lessons, and outcomes to shared memory.
+
+skill:
+  id: record_memory
+  display_name: Record Memory
+  version: "1.0.0"
+  description: >
+    Saves useful operational facts, decisions, lessons, and workflow outcomes to the
+    shared TruckOps memory layer. This skill runs automatically at the end of every
+    significant workflow and can also be invoked manually.
+  trigger: automatic_post_workflow
+  invoked_by: orchestrator_internal
+  memory_base_path: "${TRUCKOPS_HOME}/memory/"
+
+input_schema:
+  type: object
+  required:
+    - memory_type
+    - source
+    - content
+    - retention
+  properties:
+    memory_type:
+      type: string
+      enum:
+        - owner_preference
+        - business_fact
+        - operational_lesson
+        - agent_feedback
+        - workflow_outcome
+    source:
+      type: string
+      description: The workflow, interaction, or agent that produced this memory
+    content:
+      type: string
+      description: The memory content to record
+    record_refs:
+      type: array
+      items:
+        type: string
+      description: Optional record IDs this memory relates to
+    retention:
+      type: string
+      enum:
+        - short
+        - standard
+        - long
+      default: standard
+
+output_schema:
+  type: object
+  required:
+    - memory_id
+    - status
+  properties:
+    memory_id:
+      type: string
+      format: uuid
+    status:
+      type: string
+      enum:
+        - written
+        - skipped
+        - failed
+    reason:
+      type: string
+      description: Reason for skipped or failed status
+
+memory_destinations:
+  owner_preference: "${TRUCKOPS_HOME}/memory/owner/"
+  business_fact: "${TRUCKOPS_HOME}/memory/business/"
+  operational_lesson: "${TRUCKOPS_HOME}/memory/lessons/"
+  agent_feedback: "${TRUCKOPS_HOME}/memory/agents/"
+  workflow_outcome: "${TRUCKOPS_HOME}/memory/business/"
+
+error_code: ORC-MEMORY-001

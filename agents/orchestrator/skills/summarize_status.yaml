@@ -1,0 +1,72 @@
+# Skill: summarize_status
+# Version: 1.0.0
+#
+# Produces a clear owner-facing summary from records, specialist outputs, and workflow state.
+# Summarization style is configured in prompts/summarization.md.
+
+skill:
+  id: summarize_status
+  display_name: Summarize Status
+  version: "1.0.0"
+  description: >
+    Produces a clear owner-facing summary from records, specialist agent outputs,
+    and current workflow state. The summarization format and tone are defined in
+    prompts/summarization.md and can be customized there.
+  trigger: on_demand
+  invoked_by: orchestrator_internal
+  summarization_prompt_ref: "${TRUCKOPS_HOME}/agents/orchestrator/prompts/summarization.md"
+
+input_schema:
+  type: object
+  required:
+    - summary_type
+    - audience
+  properties:
+    summary_type:
+      type: string
+      enum:
+        - daily
+        - workflow
+        - agent
+        - compliance
+        - dispatch
+        - system
+    source_refs:
+      type: array
+      items:
+        type: string
+      description: Record IDs, workflow IDs, or memory IDs to include in the summary
+    audience:
+      type: string
+      enum:
+        - owner
+      default: owner
+
+output_schema:
+  type: object
+  required:
+    - summary
+    - open_loops
+    - decisions_needed
+    - risks
+    - next_actions
+  properties:
+    summary:
+      type: string
+      description: The primary owner-facing summary text
+    open_loops:
+      type: array
+      items:
+        type: string
+    decisions_needed:
+      type: array
+      items:
+        type: string
+    risks:
+      type: array
+      items:
+        type: string
+    next_actions:
+      type: array
+      items:
+        type: string

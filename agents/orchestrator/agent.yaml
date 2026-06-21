@@ -1,0 +1,154 @@
+# Orchestrator Agent Manifest
+# Version: 1.0.0
+#
+# This manifest defines the Orchestrator Agent for the TruckOps OpenClaw AI Operating System.
+# It is machine-readable and used by the OpenClaw framework and the agent registry.
+#
+# No model provider, vendor, or API endpoint is hard-coded.
+# All model configuration is injected via environment variables.
+
+agent:
+  canonical_id: orchestrator
+  display_name: Orchestrator Agent
+  version: "1.0.0"
+  type: owner_interface
+  status: implementation_ready
+  owner_facing: true
+  description: >
+    Primary TruckOps coordination agent. Interprets owner requests, routes work to
+    specialist agents, coordinates workflows, synthesizes results, and records memory.
+
+runtime:
+  framework: OpenClaw
+  workspace_root: "${TRUCKOPS_HOME}"
+  environment: "${TRUCKOPS_ENV}"
+  default_environment: development
+
+interfaces:
+  owner_facing: true
+  specialist_facing: true
+  direct_specialist_access_required: false
+
+required_environment_variables:
+  - name: TRUCKOPS_HOME
+    description: Runtime workspace root (e.g., /opt/truckops or ~/truckops)
+  - name: TRUCKOPS_ENV
+    description: Runtime environment (development, staging, production)
+  - name: OPENCLAW_BASE_URL
+    description: OpenClaw base URL (e.g., http://localhost:8080)
+  - name: MODEL_PROVIDER_NAME
+    description: Model provider label — any string (e.g., local, anthropic, mistral)
+  - name: MODEL_PROVIDER_ENDPOINT
+    description: Model provider endpoint URL — any compliant endpoint
+  - name: GCP_PROJECT_ID
+    description: GCP project ID
+  - name: GCP_REGION
+    description: GCP region (e.g., us-central1)
+
+optional_environment_variables:
+  - name: SQLITE_DB_PATH
+    description: Override for SQLite database path
+    default: "${TRUCKOPS_HOME}/data/truckops.sqlite"
+  - name: VECTOR_DB_PATH
+    description: Override for vector database path
+    default: "${TRUCKOPS_HOME}/data/vector"
+
+model:
+  provider_name: "${MODEL_PROVIDER_NAME}"
+  endpoint: "${MODEL_PROVIDER_ENDPOINT}"
+  timeout_seconds: 60
+  retry_attempts: 3
+  retry_backoff_seconds: 2
+  # No specific model provider is hard-coded. Any compliant endpoint is supported.
+
+secrets:
+  storage: GCP Secret Manager
+  required:
+    - model_provider_api_key
+  optional:
+    - telegram_bot_token
+    - owner_notification_channel
+    - load_board_credentials
+    - email_smtp_credentials
+
+prompts:
+  # All prompts are stored as separate files. Customize them without modifying core logic.
+  system: "${TRUCKOPS_HOME}/agents/orchestrator/prompts/system.md"
+  routing: "${TRUCKOPS_HOME}/agents/orchestrator/prompts/routing.md"
+  summarization: "${TRUCKOPS_HOME}/agents/orchestrator/prompts/summarization.md"
+
+skills:
+  # All skills are loaded from YAML files. Add new skills by adding YAML files.
+  directory: "${TRUCKOPS_HOME}/agents/orchestrator/skills/"
+  registered:
+    - parse_owner_intent
+    - route_task
+    - coordinate_workflow
+    - summarize_status
+    - record_memory
+    - request_owner_confirmation
+
+workflows:
+  # All workflows are loaded from YAML files. Add new workflows by adding YAML files.
+  directory: "${TRUCKOPS_HOME}/agents/orchestrator/workflows/"
+  registered:
+    - dispatch_intake
+    - compliance_check
+    - daily_briefing
+
+specialist_agents:
+  # Loaded from config/agents.yaml. Add new agents by adding entries there.
+  # No core code modification required for new agents.
+  registry_file: "${TRUCKOPS_HOME}/config/agents.yaml"
+  required_for_mvp:
+    - dispatch
+  optional:
+    - document_compliance
+    - invoicing_collections
+
+memory_policy:
+  read_shared_memory: true
+  write_shared_memory: true
+  write_coordination_logs: true
+  write_agent_private_records: false
+
+confirmation_policy:
+  require_owner_confirmation_for:
+    - booking_load
+    - sending_external_message
+    - filing_compliance_document
+    - deleting_record
+    - changing_configuration
+    - production_release
+
+logging:
+  format: structured
+  destination:
+    - "${TRUCKOPS_HOME}/logs/orchestrator/"
+  required_fields:
+    - timestamp
+    - request_id
+    - session_id
+    - intent
+    - route
+    - agent_called
+    - result_status
+    - memory_written
+
+handoff:
+  accepts_from:
+    - owner
+  returns_to:
+    - owner
+
+data_access:
+  reads:
+    - "${TRUCKOPS_HOME}/records/"
+    - "${TRUCKOPS_HOME}/memory/"
+    - "${TRUCKOPS_HOME}/data/truckops.sqlite"
+  writes:
+    - "${TRUCKOPS_HOME}/records/owner-confirmations/"
+    - "${TRUCKOPS_HOME}/records/open-loops/"
+    - "${TRUCKOPS_HOME}/memory/business/"
+    - "${TRUCKOPS_HOME}/memory/owner/"
+    - "${TRUCKOPS_HOME}/logs/orchestrator/"

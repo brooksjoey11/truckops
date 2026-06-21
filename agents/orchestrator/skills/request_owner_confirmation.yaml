@@ -1,0 +1,101 @@
+# Skill: request_owner_confirmation
+# Version: 1.0.0
+#
+# Pauses workflow execution when a critical action requires explicit owner approval.
+# The list of actions requiring confirmation is defined in agent.yaml under confirmation_policy.
+
+skill:
+  id: request_owner_confirmation
+  display_name: Request Owner Confirmation
+  version: "1.0.0"
+  description: >
+    Pauses workflow execution and requests explicit owner approval before proceeding
+    with any irreversible or externally-committed action. No action is taken until
+    the owner approves. Default behavior on no response is to take no action.
+  trigger: automatic_before_critical_action
+  invoked_by: orchestrator_internal
+
+confirmation_required_for:
+  # This list is the authoritative confirmation policy. Edit here to add or remove triggers.
+  # Also update agent.yaml confirmation_policy to stay in sync.
+  - booking_load
+  - sending_external_message
+  - sending_document
+  - filing_compliance_document
+  - deleting_record
+  - overwriting_record
+  - changing_production_configuration
+  - production_release
+  - spending_money
+  - connecting_external_service
+
+input_schema:
+  type: object
+  required:
+    - workflow_id
+    - action
+    - reason_confirmation_required
+    - default_if_no_response
+  properties:
+    workflow_id:
+      type: string
+      format: uuid
+    action:
+      type: string
+      description: Human-readable description of the action requiring approval
+    reason_confirmation_required:
+      type: string
+      description: Why this action requires confirmation
+    options:
+      type: array
+      items:
+        type: string
+      default:
+        - "Approve"
+        - "Reject"
+        - "Modify"
+    default_if_no_response:
+      type: string
+      enum:
+        - pause
+        - reject
+      default: pause
+      description: What to do if no owner response is received
+
+output_schema:
+  type: object
+  required:
+    - confirmation_id
+    - status
+  properties:
+    confirmation_id:
+      type: string
+      format: uuid
+    status:
+      type: string
+      enum:
+        - requested
+        - approved
+        - rejected
+        - expired
+    selected_option:
+      type:
+        - string
+        - null
+
+confirmation_format: |
+  CONFIRMATION REQUIRED
+
+  Action:
+  {action}
+
+  Reason:
+  {reason_confirmation_required}
+
+  Options:
+  {options_list}
+
+  Default:
+  No action until approved.
+
+error_code: ORC-CONFIRM-001

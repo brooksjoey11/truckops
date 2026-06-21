@@ -1,0 +1,81 @@
+# Workflow: compliance_check
+# Version: 1.0.0
+#
+# Handles owner requests related to compliance status, document expiry, and filings.
+# This workflow definition can be modified without changing the Orchestrator's core logic.
+
+workflow:
+  id: compliance_check
+  display_name: Compliance Check
+  version: "1.0.0"
+  description: >
+    Handles owner requests to check compliance status, review expiring documents,
+    and identify upcoming filings. Routes the request to the Document & Compliance
+    Manager Agent and summarizes the results with prioritized next actions.
+
+  owner_trigger_examples:
+    - "What compliance items are due?"
+    - "Check documents expiring soon."
+    - "Anything I need to renew?"
+    - "What's the compliance status?"
+    - "Is there anything expiring in the next 30 days?"
+
+  steps:
+    - step_id: parse_owner_intent
+      display_name: Parse Owner Intent
+      handler: orchestrator
+      skill: parse_owner_intent
+      input:
+        pass_through_from: workflow_trigger
+      depends_on: []
+
+    - step_id: route_to_document_compliance
+      display_name: Route to Document Compliance
+      handler: orchestrator
+      skill: route_task
+      input:
+        pass_through_from: parse_owner_intent
+      depends_on:
+        - parse_owner_intent
+
+    - step_id: check_expiring_documents
+      display_name: Check Expiring Documents
+      handler: document_compliance
+      skill: track_document_expiry
+      input:
+        pass_through_from: parse_owner_intent
+      depends_on:
+        - route_to_document_compliance
+      on_handler_unavailable: surface_block_to_owner
+
+    - step_id: summarize_compliance_status
+      display_name: Summarize Compliance Status
+      handler: orchestrator
+      skill: summarize_status
+      input:
+        summary_type: compliance
+        source_refs:
+          - check_expiring_documents
+      depends_on:
+        - check_expiring_documents
+
+    - step_id: record_open_loops
+      display_name: Record Open Loops
+      handler: orchestrator
+      skill: record_memory
+      input:
+        memory_type: operational_lesson
+        source: compliance_check
+      depends_on:
+        - summarize_compliance_status
+
+  terminal_states:
+    - completed
+    - blocked_waiting_for_owner
+    - blocked_specialist_unavailable
+    - blocked_missing_required_data
+    - failed
+
+  failure_rule: >
+    The workflow must not silently fail. Any failure must be surfaced to the owner
+    with a clear explanation and recommended next action.

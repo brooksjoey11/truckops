@@ -1,0 +1,101 @@
+# MVP Acceptance Test — Orchestrator Agent
+# Version: 1.0.0
+#
+# This file defines the MVP acceptance test for the Orchestrator Agent.
+# It is a configurable template — not a fixed requirement.
+#
+# Modify the input, expected_behavior, and passing_criteria sections to match
+# your specific test scenario without modifying the Orchestrator's core logic.
+#
+# Run this test before calling the Orchestrator MVP-ready.
+
+test:
+  id: orchestrator_mvp_acceptance
+  display_name: Orchestrator MVP Acceptance Test
+  version: "1.0.0"
+  description: >
+    Verifies that the Orchestrator can receive a dispatch-related owner request,
+    parse intent correctly, route to the Dispatch Agent (or surface a block if
+    unavailable), summarize the result, and reach a valid terminal state.
+    Adjust input and expectations below to match your environment.
+
+# --- CONFIGURABLE SECTION ---
+# Modify the input below to match a realistic owner request for your operation.
+input:
+  owner_message: >
+    Find me a load for tomorrow from Atlanta toward Dallas.
+    I want something worth running, not just any load.
+  session_id: "mvp-test-session-001"
+  environment: development
+  use_mock_dispatch_agent: true  # Set to false when real Dispatch Agent is available
+
+# Modify expected_behavior steps to match what you expect the Orchestrator to do.
+expected_behavior:
+  - step: 1
+    description: >
+      Orchestrator parses the request and assigns it to domain: dispatch.
+    verification: intent.primary_domain == "dispatch"
+
+  - step: 2
+    description: >
+      Orchestrator routes the task to the Dispatch Agent.
+    verification: route.selected_handler == "dispatch"
+
+  - step: 3
+    description: >
+      If Dispatch Agent is unavailable, Orchestrator reports the block clearly.
+    verification: >
+      workflow.status in ["blocked_specialist_unavailable"] AND
+      owner_response contains "Dispatch Agent" AND
+      owner_response contains explanation of block
+
+  - step: 4
+    description: >
+      If Dispatch Agent is available, it returns candidate loads or asks for missing constraints.
+    verification: >
+      dispatch_result is not null OR
+      owner_response contains request for missing information
+
+  - step: 5
+    description: >
+      Orchestrator summarizes the recommendation in plain language.
+    verification: owner_response is not null AND owner_response.length > 0
+
+  - step: 6
+    description: >
+      Orchestrator requests owner confirmation before booking any load.
+    verification: >
+      IF booking_action_present THEN
+        confirmation_requested == true AND
+        status == "blocked_waiting_for_owner"
+
+  - step: 7
+    description: >
+      Orchestrator records the workflow result and any owner preference.
+    verification: memory_update is not null OR memory_skipped_with_reason
+
+# Modify passing_criteria to define what constitutes a passing test for your environment.
+passing_criteria:
+  required_terminal_state_one_of:
+    - completed
+    - blocked_waiting_for_owner
+    - blocked_specialist_unavailable
+    - blocked_missing_required_data
+  must_not_silently_fail: true
+  owner_response_required: true
+  logs_written_required: true
+
+# --- END CONFIGURABLE SECTION ---
+
+test_execution:
+  command: >
+    Run this test by submitting the input above to the Orchestrator and
+    verifying each expected_behavior step against the actual output.
+  environment: development
+  data: sample_only  # Never use production data for this test
+
+notes:
+  - The MVP acceptance test passes when the workflow reaches any of the valid terminal states.
+  - The workflow must never silently fail.
+  - Modify this file to add new scenarios, change the input, or adjust pass/fail criteria.
+  - Do not modify the Orchestrator's core logic to make this test pass.

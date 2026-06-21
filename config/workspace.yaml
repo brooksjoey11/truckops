@@ -1,0 +1,55 @@
+# TruckOps Workspace Configuration
+# Version: 1.0.0
+#
+# Non-secret runtime configuration for the TruckOps workspace.
+# Do NOT store secrets, credentials, or API keys in this file.
+# Secrets are stored in GCP Secret Manager.
+
+workspace:
+  name: truckops
+  version: "1.0.0"
+  environment: "${TRUCKOPS_ENV}"     # development | staging | production
+  home: "${TRUCKOPS_HOME}"            # Set via environment variable
+
+paths:
+  agents: "${TRUCKOPS_HOME}/agents"
+  config: "${TRUCKOPS_HOME}/config"
+  data: "${TRUCKOPS_HOME}/data"
+  memory: "${TRUCKOPS_HOME}/memory"
+  records: "${TRUCKOPS_HOME}/records"
+  logs: "${TRUCKOPS_HOME}/logs"
+  backups: "${TRUCKOPS_HOME}/backups"
+  releases: "${TRUCKOPS_HOME}/releases"
+  bootstrap: "${TRUCKOPS_HOME}/bootstrap"
+  dev: "${TRUCKOPS_HOME}/dev"
+  staging: "${TRUCKOPS_HOME}/staging"
+  tests: "${TRUCKOPS_HOME}/tests"
+  tools: "${TRUCKOPS_HOME}/tools"
+
+database:
+  sqlite_path: "${TRUCKOPS_HOME}/data/truckops.sqlite"
+  vector_path: "${TRUCKOPS_HOME}/data/vector"
+
+model:
+  # No model provider is hard-coded. Configure via environment variables.
+  provider_name: "${MODEL_PROVIDER_NAME}"
+  endpoint: "${MODEL_PROVIDER_ENDPOINT}"
+  timeout_seconds: 60
+  retry_attempts: 3
+
+openclaw:
+  base_url: "${OPENCLAW_BASE_URL}"
+
+gcp:
+  project_id: "${GCP_PROJECT_ID}"
+  region: "${GCP_REGION}"
+
+logging:
+  level: INFO                 # DEBUG | INFO | WARN | ERROR | FATAL
+  format: json
+  destination: file           # file | cloud_logging | both
+
+backup:
+  retention_days_daily: 30
+  retention_days_pre_release: 90
+  retention_days_manual: 365

@@ -1,0 +1,104 @@
+# Skill: coordinate_workflow
+# Version: 1.0.0
+#
+# Breaks a multi-step owner request into ordered tasks and coordinates completion.
+# Workflow definitions are loaded from the workflows/ directory.
+
+skill:
+  id: coordinate_workflow
+  display_name: Coordinate Workflow
+  version: "1.0.0"
+  description: >
+    Breaks a complex owner request into an ordered sequence of tasks, assigns each
+    task to the appropriate handler (orchestrator or specialist agent), executes the
+    workflow step by step, and returns aggregated results with owner-facing summary.
+  trigger: on_demand
+  invoked_by: orchestrator_internal
+  workflow_directory: "${TRUCKOPS_HOME}/agents/orchestrator/workflows/"
+
+input_schema:
+  type: object
+  required:
+    - workflow_id
+    - intent_id
+    - workflow_type
+    - steps
+  properties:
+    workflow_id:
+      type: string
+      format: uuid
+    intent_id:
+      type: string
+      format: uuid
+    workflow_type:
+      type: string
+      enum:
+        - dispatch_intake
+        - compliance_check
+        - document_update
+        - daily_briefing
+        - system_status
+        - custom
+    steps:
+      type: array
+      items:
+        type: object
+        required:
+          - step_id
+          - handler
+          - skill
+          - input
+        properties:
+          step_id:
+            type: string
+          handler:
+            type: string
+          skill:
+            type: string
+          input:
+            type: object
+          depends_on:
+            type: array
+            items:
+              type: string
+
+output_schema:
+  type: object
+  required:
+    - workflow_id
+    - status
+    - completed_steps
+    - blocked_steps
+    - results
+    - owner_response
+    - memory_updates
+  properties:
+    workflow_id:
+      type: string
+      format: uuid
+    status:
+      type: string
+      enum:
+        - pending
+        - running
+        - blocked
+        - completed
+        - failed
+    completed_steps:
+      type: array
+    blocked_steps:
+      type: array
+    results:
+      type: object
+    owner_response:
+      type: string
+    memory_updates:
+      type: array
+
+error_codes:
+  - code: ORC-WORKFLOW-001
+    meaning: Workflow dependency failed
+    retryable: false
+  - code: ORC-WORKFLOW-002
+    meaning: Workflow timed out
+    retryable: true
