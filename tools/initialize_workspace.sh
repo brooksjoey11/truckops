@@ -13,15 +13,15 @@
 
 set -euo pipefail
 
-# ─── Validate prerequisites ───────────────────────────────────────────────────
+# ─── Ensure TRUCKOPS_HOME is set with a sensible default ──────────────────
 
-if [ -z "${TRUCKOPS_HOME:-}" ]; then
-  echo "ERROR: TRUCKOPS_HOME is not set."
-  echo "Set it before running this script:"
-  echo "  export TRUCKOPS_HOME=\"/opt/truckops\"       # production"
-  echo "  export TRUCKOPS_HOME=\"\$HOME/truckops\"     # development"
-  exit 1
+# Use default if not set, and warn.
+export TRUCKOPS_HOME="${TRUCKOPS_HOME:-$HOME/truckops}"
+if [ -z "${TRUCKOPS_HOME_ORIG+x}" ]; then
+  echo "WARNING: TRUCKOPS_HOME not set; using default: $TRUCKOPS_HOME" >&2
 fi
+
+# ─── Validate environment ────────────────────────────────────────────────────
 
 if [ -z "${TRUCKOPS_ENV:-}" ]; then
   echo "WARNING: TRUCKOPS_ENV is not set. Defaulting to 'development'."
@@ -140,6 +140,17 @@ if [ "$VALID" = true ]; then
 else
   echo "  ERROR: Workspace structure validation failed."
   exit 1
+fi
+
+# ─── Initialize database schema ──────────────────────────────────────────────
+
+# Run the database initialization script if it exists.
+DB_INIT_SCRIPT="$(dirname "$0")/init_db.sh"
+if [ -f "$DB_INIT_SCRIPT" ]; then
+  echo "Initializing database schema..."
+  bash "$DB_INIT_SCRIPT"
+else
+  echo "WARNING: Database init script not found at $DB_INIT_SCRIPT. Skipping."
 fi
 
 # ─── Summary ──────────────────────────────────────────────────────────────────
