@@ -1,0 +1,50 @@
+workflow:
+  id: compliance_check
+  display_name: Compliance Check Workflow
+  description: Check compliance and document expiration status
+  version: "1.0.0"
+
+owner_trigger_examples:
+  - "What compliance items are due?"
+  - "Check documents expiring soon."
+  - "Anything I need to renew?"
+
+steps:
+  - id: parse_owner_intent
+    handler: orchestrator
+    skill: parse_owner_intent
+    description: Parse the compliance check request
+
+  - id: route_to_document_compliance
+    handler: orchestrator
+    skill: route_task
+    description: Route to Document & Compliance Manager Agent
+    depends_on:
+      - parse_owner_intent
+
+  - id: check_expiring_documents
+    handler: document_compliance
+    skill: track_document_expiry
+    description: Check for expiring and expired documents
+    depends_on:
+      - route_to_document_compliance
+
+  - id: summarize_compliance_status
+    handler: orchestrator
+    skill: summarize_status
+    description: Summarize compliance findings for the owner
+    depends_on:
+      - check_expiring_documents
+
+  - id: record_open_loops
+    handler: orchestrator
+    skill: record_memory
+    description: Record any open compliance loops
+    depends_on:
+      - summarize_compliance_status
+
+terminal_states:
+  - completed
+  - blocked_specialist_unavailable
+  - blocked_missing_required_data
+  - failed

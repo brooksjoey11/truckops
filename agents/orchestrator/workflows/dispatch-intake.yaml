@@ -1,0 +1,71 @@
+workflow:
+  id: dispatch_intake
+  display_name: Dispatch Intake Workflow
+  description: End-to-end workflow for handling an owner dispatch request
+  version: "1.0.0"
+
+owner_trigger_examples:
+  - "Find me a load for tomorrow."
+  - "Check this load."
+  - "Can we run Dallas next week?"
+
+steps:
+  - id: parse_owner_intent
+    handler: orchestrator
+    skill: parse_owner_intent
+    description: Parse the owner's dispatch request into a structured intent
+
+  - id: route_to_dispatch
+    handler: orchestrator
+    skill: route_task
+    description: Route the task to the Dispatch Agent
+    depends_on:
+      - parse_owner_intent
+
+  - id: dispatch_intake
+    handler: dispatch
+    skill: dispatch_intake
+    description: Dispatch Agent intakes and structures the request
+    depends_on:
+      - route_to_dispatch
+
+  - id: evaluate_load_or_search
+    handler: dispatch
+    skill: evaluate_load
+    description: Dispatch Agent evaluates load or searches for options
+    depends_on:
+      - dispatch_intake
+
+  - id: summarize_dispatch_result
+    handler: orchestrator
+    skill: summarize_status
+    description: Orchestrator summarizes the dispatch result for the owner
+    depends_on:
+      - evaluate_load_or_search
+
+  - id: request_confirmation_if_required
+    handler: orchestrator
+    skill: request_owner_confirmation
+    description: Request confirmation before any booking action
+    depends_on:
+      - summarize_dispatch_result
+    condition: requires_confirmation == true
+
+  - id: record_memory
+    handler: orchestrator
+    skill: record_memory
+    description: Record workflow outcome and any owner preferences learned
+    depends_on:
+      - summarize_dispatch_result
+
+terminal_states:
+  - completed
+  - blocked_waiting_for_owner
+  - blocked_specialist_unavailable
+  - blocked_missing_required_data
+  - failed
+
+failure_policy:
+  on_dispatch_unavailable: report_block_clearly
+  on_missing_data: ask_owner_one_question
+  silent_failure: never_allowed

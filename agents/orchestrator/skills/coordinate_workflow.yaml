@@ -1,0 +1,74 @@
+skill:
+  id: coordinate_workflow
+  display_name: Coordinate Workflow
+  description: Break a multi-step owner request into ordered tasks and coordinate completion
+  trigger: on_demand
+  handler: orchestrator
+
+input_schema:
+  type: object
+  required:
+    - workflow_id
+    - intent_id
+    - workflow_type
+    - steps
+  properties:
+    workflow_id:
+      type: string
+      format: uuid
+    intent_id:
+      type: string
+      format: uuid
+    workflow_type:
+      type: string
+      enum:
+        - dispatch_intake
+        - compliance_check
+        - document_update
+        - daily_briefing
+        - system_status
+    steps:
+      type: array
+      items:
+        type: object
+        properties:
+          step_id:
+            type: string
+          handler:
+            type: string
+          skill:
+            type: string
+          input:
+            type: object
+          depends_on:
+            type: array
+            items:
+              type: string
+
+output_schema:
+  type: object
+  required:
+    - workflow_id
+    - status
+  properties:
+    workflow_id:
+      type: string
+      format: uuid
+    status:
+      type: string
+      enum:
+        - pending
+        - running
+        - blocked
+        - completed
+        - failed
+    completed_steps:
+      type: array
+    blocked_steps:
+      type: array
+    results:
+      type: object
+    owner_response:
+      type: string
+    memory_updates:
+      type: array

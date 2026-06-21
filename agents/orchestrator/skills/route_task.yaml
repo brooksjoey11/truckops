@@ -1,0 +1,53 @@
+skill:
+  id: route_task
+  display_name: Route Task
+  description: Select the correct specialist agent or internal Orchestrator handler
+  trigger: on_demand
+  handler: orchestrator
+
+input_schema:
+  type: object
+  required:
+    - intent_id
+    - primary_domain
+    - structured_task
+    - candidate_agents
+  properties:
+    intent_id:
+      type: string
+      format: uuid
+    primary_domain:
+      type: string
+    structured_task:
+      type: object
+    candidate_agents:
+      type: array
+      items:
+        type: string
+
+output_schema:
+  type: object
+  required:
+    - route_id
+    - selected_handler
+    - routing_reason
+    - required_skill
+    - confidence
+  properties:
+    route_id:
+      type: string
+      format: uuid
+    selected_handler:
+      type: string
+    routing_reason:
+      type: string
+    required_skill:
+      type: string
+    confidence:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+    fallback_handler:
+      type: string
+
+routing_rules_ref: ${TRUCKOPS_HOME}/agents/orchestrator/prompts/routing.md

@@ -1,0 +1,111 @@
+# TruckOps Agent Registry
+# Version: 1.0.0
+#
+# This file is the authoritative agent registry.
+# To add a new specialist agent:
+#   1. Create an agent manifest at agents/{canonical_id}/agent.yaml
+#   2. Add an entry to this file
+#   3. The Orchestrator will register the agent on next startup
+#
+# No core code changes are required to add a new agent.
+
+agents:
+  - canonical_id: orchestrator
+    display_name: Orchestrator Agent
+    type: owner_interface
+    status: implementation_ready
+    owner_facing: true
+    manifest: agents/orchestrator/agent.yaml
+    enabled: true
+
+  - canonical_id: dispatch
+    display_name: Dispatch Agent
+    type: specialist
+    status: specification_ready
+    owner_facing: false
+    manifest: agents/dispatch/agent.yaml
+    enabled: false
+    endpoint: ${DISPATCH_AGENT_ENDPOINT}
+    skills:
+      - dispatch_intake
+      - evaluate_load
+      - find_loads
+      - match_truck_to_load
+      - book_load
+      - generate_bol
+
+  - canonical_id: document_compliance
+    display_name: Document & Compliance Manager Agent
+    type: specialist
+    status: specification_ready
+    owner_facing: false
+    manifest: agents/document_compliance/agent.yaml
+    enabled: false
+    endpoint: ${DOCUMENT_AGENT_ENDPOINT}
+    skills:
+      - track_document_expiry
+      - extract_pdf_data
+      - auto_file_report
+      - generate_document
+
+  - canonical_id: invoicing_collections
+    display_name: Invoicing & Collections Agent
+    type: specialist
+    status: planned
+    owner_facing: false
+    enabled: false
+    endpoint: ${INVOICING_AGENT_ENDPOINT}
+    skills:
+      - create_invoice
+      - send_invoice
+      - track_payment
+
+  - canonical_id: broker_intelligence
+    display_name: Broker Intelligence Agent
+    type: specialist
+    status: planned
+    owner_facing: false
+    enabled: false
+
+  - canonical_id: maintenance
+    display_name: Maintenance Agent
+    type: specialist
+    status: planned
+    owner_facing: false
+    enabled: false
+
+  - canonical_id: fuel_expense
+    display_name: Fuel & Expense Agent
+    type: specialist
+    status: planned
+    owner_facing: false
+    enabled: false
+
+  - canonical_id: cash_flow
+    display_name: Cash Flow Agent
+    type: specialist
+    status: planned
+    owner_facing: false
+    enabled: false
+
+  - canonical_id: profitability
+    display_name: Profitability Agent
+    type: specialist
+    status: planned
+    owner_facing: false
+    enabled: false
+
+  - canonical_id: daily_briefing
+    display_name: Daily Briefing Agent
+    type: composite
+    status: planned
+    owner_facing: false
+    enabled: false
+
+# Registration rules (enforced at startup):
+# - canonical_id is required
+# - display_name is required
+# - type is required
+# - At least one skill required for non-planned agents
+# - Duplicate canonical_ids are rejected
+# - An agent must not duplicate an existing canonical_id

@@ -1,0 +1,48 @@
+skill:
+  id: summarize_status
+  display_name: Summarize Status
+  description: Produce a clear owner-facing summary from records, specialist outputs, and current workflow state
+  trigger: on_demand
+  handler: orchestrator
+
+input_schema:
+  type: object
+  required:
+    - summary_type
+    - audience
+  properties:
+    summary_type:
+      type: string
+      enum:
+        - daily
+        - workflow
+        - agent
+        - compliance
+        - dispatch
+        - system
+    source_refs:
+      type: array
+      items:
+        type: string
+    audience:
+      type: string
+      enum:
+        - owner
+
+output_schema:
+  type: object
+  required:
+    - summary
+  properties:
+    summary:
+      type: string
+    open_loops:
+      type: array
+    decisions_needed:
+      type: array
+    risks:
+      type: array
+    next_actions:
+      type: array
+
+summarization_prompt_ref: ${TRUCKOPS_HOME}/agents/orchestrator/prompts/summarization.md

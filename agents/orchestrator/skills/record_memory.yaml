@@ -1,0 +1,55 @@
+skill:
+  id: record_memory
+  display_name: Record Memory
+  description: Save useful operational facts, decisions, lessons, and outcomes to the shared memory layer
+  trigger: on_demand
+  handler: orchestrator
+
+input_schema:
+  type: object
+  required:
+    - memory_type
+    - source
+    - content
+    - retention
+  properties:
+    memory_type:
+      type: string
+      enum:
+        - owner_preference
+        - business_fact
+        - operational_lesson
+        - agent_feedback
+        - workflow_outcome
+    source:
+      type: string
+    content:
+      type: string
+    record_refs:
+      type: array
+      items:
+        type: string
+    retention:
+      type: string
+      enum:
+        - short
+        - standard
+        - long
+
+output_schema:
+  type: object
+  required:
+    - memory_id
+    - status
+  properties:
+    memory_id:
+      type: string
+      format: uuid
+    status:
+      type: string
+      enum:
+        - written
+        - skipped
+        - failed
+    reason:
+      type: string

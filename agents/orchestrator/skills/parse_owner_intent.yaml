@@ -1,0 +1,88 @@
+skill:
+  id: parse_owner_intent
+  display_name: Parse Owner Intent
+  description: Convert owner input into a structured intent object
+  trigger: on_demand
+  handler: orchestrator
+
+input_schema:
+  type: object
+  required:
+    - session_id
+    - owner_message
+    - timestamp
+  properties:
+    session_id:
+      type: string
+      description: Conversation session ID
+    owner_message:
+      type: string
+      description: Raw owner message
+    timestamp:
+      type: string
+      format: date-time
+    context_refs:
+      type: array
+      items:
+        type: string
+      description: Optional record IDs or memory IDs
+
+output_schema:
+  type: object
+  required:
+    - intent_id
+    - primary_domain
+    - intent_type
+    - urgency
+    - requires_specialist
+    - candidate_agents
+  properties:
+    intent_id:
+      type: string
+      format: uuid
+    primary_domain:
+      type: string
+      enum:
+        - dispatch
+        - compliance
+        - documents
+        - finance
+        - maintenance
+        - daily_briefing
+        - development
+        - unknown
+    intent_type:
+      type: string
+      enum:
+        - ask
+        - command
+        - update
+        - reminder
+        - status_check
+        - decision_request
+    urgency:
+      type: string
+      enum:
+        - low
+        - normal
+        - high
+        - critical
+    requires_specialist:
+      type: boolean
+    candidate_agents:
+      type: array
+      items:
+        type: string
+    missing_information:
+      type: array
+      items:
+        type: string
+    owner_confirmation_required:
+      type: boolean
+    structured_task:
+      type: object
+
+failure_conditions:
+  - Owner request cannot be assigned to a domain
+  - Required context is missing
+  - Request conflicts with current system state

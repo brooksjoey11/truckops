@@ -1,0 +1,91 @@
+agent:
+  canonical_id: orchestrator
+  display_name: Orchestrator Agent
+  version: "1.0.0"
+  type: owner_interface
+  status: implementation_ready
+  description: >
+    Primary TruckOps coordination agent. Interprets owner requests, routes work to
+    specialist agents, coordinates workflows, synthesizes results, and records memory.
+
+runtime:
+  framework: OpenClaw
+  workspace_root: ${TRUCKOPS_HOME}
+  environment: ${TRUCKOPS_ENV}
+  default_environment: development
+
+interfaces:
+  owner_facing: true
+  specialist_facing: true
+  direct_specialist_access_required: false
+
+required_services:
+  - openclaw
+  - model_provider
+  - sqlite
+  - lancedb
+
+required_environment_variables:
+  - TRUCKOPS_HOME
+  - TRUCKOPS_ENV
+  - OPENCLAW_BASE_URL
+  - MODEL_PROVIDER_NAME
+  - MODEL_PROVIDER_ENDPOINT
+  - GCP_PROJECT_ID
+  - GCP_REGION
+
+secrets:
+  storage: GCP Secret Manager
+  required:
+    - model_provider_api_key
+  optional:
+    - telegram_bot_token
+    - owner_notification_channel
+    - load_board_credentials
+    - email_smtp_credentials
+
+# Registry is loaded from config/agents.yaml - not hardcoded here
+agent_registry_config: ${TRUCKOPS_HOME}/config/agents.yaml
+
+prompts:
+  system: ${TRUCKOPS_HOME}/agents/orchestrator/prompts/system.md
+  routing: ${TRUCKOPS_HOME}/agents/orchestrator/prompts/routing.md
+  summarization: ${TRUCKOPS_HOME}/agents/orchestrator/prompts/summarization.md
+
+skills:
+  directory: ${TRUCKOPS_HOME}/agents/orchestrator/skills/
+
+workflows:
+  directory: ${TRUCKOPS_HOME}/agents/orchestrator/workflows/
+
+tests:
+  mvp_acceptance_test: ${TRUCKOPS_HOME}/agents/orchestrator/tests/mvp-acceptance-test.md
+
+memory_policy:
+  read_shared_memory: true
+  write_shared_memory: true
+  write_coordination_logs: true
+  write_agent_private_records: false
+
+confirmation_policy:
+  require_owner_confirmation_for:
+    - booking_load
+    - sending_external_message
+    - filing_compliance_document
+    - deleting_record
+    - changing_configuration
+    - production_release
+
+logging:
+  format: structured
+  destination:
+    - ${TRUCKOPS_HOME}/logs/orchestrator/
+  required_fields:
+    - timestamp
+    - request_id
+    - session_id
+    - intent
+    - route
+    - agent_called
+    - result_status
+    - memory_written

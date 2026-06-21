@@ -1,0 +1,56 @@
+workflow:
+  id: daily_briefing
+  display_name: Daily Briefing Workflow
+  description: Collect and summarize all items needing owner attention today
+  version: "1.0.0"
+
+owner_trigger_examples:
+  - "Give me the morning brief."
+  - "What needs attention today?"
+  - "Give me the TruckOps daily briefing."
+
+steps:
+  - id: collect_open_dispatch_items
+    handler: orchestrator
+    skill: summarize_status
+    input:
+      summary_type: dispatch
+    description: Collect outstanding dispatch items
+
+  - id: collect_compliance_items
+    handler: orchestrator
+    skill: summarize_status
+    input:
+      summary_type: compliance
+    description: Collect compliance and document items
+
+  - id: collect_financial_items
+    handler: orchestrator
+    skill: summarize_status
+    input:
+      summary_type: workflow
+    description: Collect financial and invoicing items
+
+  - id: collect_development_items
+    handler: orchestrator
+    skill: summarize_status
+    input:
+      summary_type: system
+    description: Collect development and release items
+
+  - id: summarize_daily_briefing
+    handler: orchestrator
+    skill: summarize_status
+    input:
+      summary_type: daily
+    description: Synthesize all items into a daily briefing
+    depends_on:
+      - collect_open_dispatch_items
+      - collect_compliance_items
+      - collect_financial_items
+      - collect_development_items
+
+terminal_states:
+  - completed
+  - partial
+  - failed

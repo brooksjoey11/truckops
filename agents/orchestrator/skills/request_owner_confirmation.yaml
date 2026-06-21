@@ -1,0 +1,59 @@
+skill:
+  id: request_owner_confirmation
+  display_name: Request Owner Confirmation
+  description: Pause execution when a critical action requires owner approval
+  trigger: on_demand
+  handler: orchestrator
+
+input_schema:
+  type: object
+  required:
+    - workflow_id
+    - action
+    - reason_confirmation_required
+    - options
+  properties:
+    workflow_id:
+      type: string
+      format: uuid
+    action:
+      type: string
+    reason_confirmation_required:
+      type: string
+    options:
+      type: array
+      items:
+        type: string
+    default_if_no_response:
+      type: string
+      default: pause
+
+output_schema:
+  type: object
+  required:
+    - confirmation_id
+    - status
+  properties:
+    confirmation_id:
+      type: string
+      format: uuid
+    status:
+      type: string
+      enum:
+        - requested
+        - approved
+        - rejected
+        - expired
+    selected_option:
+      type: string
+
+# Actions always requiring confirmation (extend this list as needed):
+always_require_confirmation:
+  - booking_load
+  - sending_external_message
+  - filing_compliance_document
+  - deleting_record
+  - changing_configuration
+  - production_release
+  - spending_money
+  - connecting_external_service

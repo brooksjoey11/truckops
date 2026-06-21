@@ -2,249 +2,309 @@
 
 ## Bootstrap Package
 
-**Version:** 1.0
-**Status:** Documentation Complete | Infrastructure Not Yet Built
+**Version:** 1.1
+**Status:** Documentation Complete | Foundation Not Yet Built | Orchestrator Specification Added
+**Primary Runtime Target:** GCP Compute Engine VM + Debian 12 + Docker + OpenClaw
+**Primary User Interface:** Orchestrator Agent
 
 ---
 
 ## Purpose
 
-This repository contains the **TruckOps Architecture Bootstrap Package** — the complete documentation and architectural foundation for the TruckOps OpenClaw AI Operating System.
+This repository contains the TruckOps Architecture Bootstrap Package: the complete documentation and architectural foundation for the TruckOps OpenClaw AI Operating System.
 
-TruckOps is an AI-powered operating system designed for small trucking businesses. It transforms a trucking operation from scattered spreadsheets, chat threads, and disconnected tools into a unified, intelligent business brain.
+TruckOps is an AI-powered operating system for small trucking businesses. It transforms scattered spreadsheets, chat threads, documents, dispatch notes, reminders, and disconnected tools into a unified business brain.
 
 This bootstrap package defines:
 
 - What TruckOps is and why it exists
 - The complete system architecture
-- Technical foundation requirements (GCP + VM + OpenClaw)
+- Foundation infrastructure requirements
+- GCP + VM + OpenClaw setup path
 - Business domains and their relationships
-- The Orchestrator Agent – the central conversational interface
-- All planned specialist agents and their capabilities
+- Agent names, agent responsibilities, and specialist-agent boundaries
+- Orchestrator Agent implementation specification
 - Data, memory, and records structure
-- Memory, learning, and self-improvement architecture
-- Development, testing, and release processes
-- Step‑by‑step foundation build runbook
+- Development, testing, and release process
+- Operations and daily-use guidance
+- Productization and future market-readiness boundaries
+
+---
+
+## Current Execution State
+
+| Component | Status | Next Action |
+|---|---|---|
+| Repository documentation | Complete enough for foundation build | Maintain through release notes |
+| GCP project | Not created | Execute foundation checklist |
+| Compute Engine VM | Not created | Provision Debian 12 VM |
+| Docker runtime | Not installed | Install during VM setup |
+| OpenClaw | Not installed | Install after Docker |
+| Model provider endpoint | Not configured | Configure after OpenClaw install |
+| TruckOps workspace | Not created | Create under canonical workspace structure |
+| Bootstrap package upload | Not uploaded | Upload after workspace creation |
+| Initialization Report | Not generated | Generate after bootstrap upload |
+| Orchestrator Agent spec | Defined | Implement after foundation build |
+| Dispatch Agent spec | Defined | Implement after Orchestrator |
+| Document & Compliance Manager Agent spec | Defined | Implement after Dispatch V1 or parallel staging |
+| Daily operations docs | Defined | Use after runtime exists |
+| Productization docs | Defined | Use only after owner-operated MVP proves value |
 
 ---
 
 ## Repository Structure
-```
 
+```
 truckops/
+├── README.md
 ├── 00 - Project Control & AI Context/
 │   └── 00-annex-ai-context-development-log.md
-│
 ├── 01 - Project Overview & Architecture/
 │   ├── 01-project-overview.md
 │   └── 02-system-architecture-baseline.md
-│
 ├── 02 - Foundation & Infrastructure/
-│   ├── 01-orchestrator-agent-architecture.md    ← The central brain
-│   ├── 02-foundation-build-runbook.md
-│   └── 03-foundation-gcp-vm-openclaw.md
-│
+│   ├── 03-foundation-build-runbook.md
+│   ├── 03-orchestrator-agent-architecture.md
+│   ├── 04-foundation-gcp-vm-openclaw.md
+│   ├── 05-canonical-workspace-structure.md
+│   └── 06-foundation-execution-checklist.md
 ├── 03 - Business Domains/
 │   └── 04-truckops-business-domains-map.md
-│
-├── 04 - Agents & Features/          (Specialist agents only)
-│   └── 05-on-demand-dispatch-intelligence-agent.md
-│   └── (future specialist agents)
-│
+├── 04 - Agents & Features/
+│   ├── ORCHESTRATOR AGENT.md
+│   ├── DISPATCH AGENT.md
+│   ├── DOCUMENT & COMPLIANCE MANAGER AGENT.md
+│   └── AGENT NAMING AND REGISTRY.md
 ├── 05 - Data, Memory & Intelligence/
-│   ├── 06-data-memory-records-baseline.md
-│   └── 07-memory-learning-self-improvement-architecture.md
-│
+│   ├── 07-data-memory-records-baseline.md
+│   └── 08-memory-learning-self-improvement-architecture.md
 ├── 06 - Development, Testing & Releases/
-│   └── 08-development-testing-release-process.md
-│
+│   ├── 06-agent-creator.md
+│   ├── 08-development-testing-release-process.md
+│   ├── 09-project-smart-audit.md
+│   └── 10-updates-implement.md
 ├── 07 - Operations & Daily Use/
 │   └── README.md
-│
 ├── 08 - Productization & Marketable System/
 │   └── README.md
-│
 ├── 99 - Archive/
 │   └── README.md
-│
-└── README.md (this file)
-
+├── agents/
+│   └── orchestrator/
+│       ├── agent.yaml
+│       ├── prompts/
+│       │   ├── system.md
+│       │   ├── routing.md
+│       │   └── summarization.md
+│       ├── skills/
+│       │   ├── parse_owner_intent.yaml
+│       │   ├── route_task.yaml
+│       │   ├── coordinate_workflow.yaml
+│       │   ├── summarize_status.yaml
+│       │   ├── record_memory.yaml
+│       │   └── request_owner_confirmation.yaml
+│       ├── workflows/
+│       │   ├── dispatch-intake.yaml
+│       │   ├── compliance-check.yaml
+│       │   └── daily-briefing.yaml
+│       └── tests/
+│           ├── mvp-acceptance-test.md
+│           └── test-routing.md
+├── config/
+│   ├── agents.yaml
+│   ├── workspace.yaml
+│   └── secrets.example.yaml
+└── tools/
+    ├── initialize_workspace.sh
+    └── health_check.sh
 ```
 
-**Key architectural placement:**
-- The Orchestrator sits in **Foundation & Infrastructure** because it defines the primary user interface and system coordination layer — it is not just another specialist agent.
-- Specialist agents live in `04 - Agents & Features/` and are invoked silently by the Orchestrator.
+---
+
+## Canonical Reading Order
+
+### For Project Understanding
+
+1. `README.md`
+2. `00 - Project Control & AI Context/00-annex-ai-context-development-log.md`
+3. `01 - Project Overview & Architecture/01-project-overview.md`
+4. `01 - Project Overview & Architecture/02-system-architecture-baseline.md`
+5. `03 - Business Domains/04-truckops-business-domains-map.md`
+
+### For Foundation Build
+
+1. `02 - Foundation & Infrastructure/04-foundation-gcp-vm-openclaw.md`
+2. `02 - Foundation & Infrastructure/03-foundation-build-runbook.md`
+3. `02 - Foundation & Infrastructure/05-canonical-workspace-structure.md`
+4. `02 - Foundation & Infrastructure/06-foundation-execution-checklist.md`
+
+### For Agent Implementation
+
+1. `04 - Agents & Features/AGENT NAMING AND REGISTRY.md`
+2. `04 - Agents & Features/ORCHESTRATOR AGENT.md`
+3. `04 - Agents & Features/DISPATCH AGENT.md`
+4. `04 - Agents & Features/DOCUMENT & COMPLIANCE MANAGER AGENT.md`
+5. `05 - Data, Memory & Intelligence/07-data-memory-records-baseline.md`
+6. `05 - Data, Memory & Intelligence/08-memory-learning-self-improvement-architecture.md`
+
+### For Safe Development
+
+1. `06 - Development, Testing & Releases/08-development-testing-release-process.md`
+2. `06 - Development, Testing & Releases/06-agent-creator.md`
+3. `06 - Development, Testing & Releases/09-project-smart-audit.md`
+4. `06 - Development, Testing & Releases/10-updates-implement.md`
+
+### For Daily Use
+
+1. `07 - Operations & Daily Use/README.md`
+
+### For Productization
+
+1. `08 - Productization & Marketable System/README.md`
 
 ---
 
-## Core Documentation (10 Notes)
+## Canonical Agent Names
 
-| # | File | Description |
-|---|------|-------------|
-| 00 | `00-annex-ai-context-development-log.md` | AI context, development rules, project status, lessons learned |
-| 01 | `01-project-overview.md` | What TruckOps is, why it exists, building‑block model |
-| 02 | `02-system-architecture-baseline.md` | Complete system architecture and organization |
-| 03 | `01-orchestrator-agent-architecture.md` | **The central conversational intelligence** – owner interface, routing, learning, skill writing |
-| 04 | `02-foundation-build-runbook.md` | Step‑by‑step GCP + VM + OpenClaw build guide |
-| 05 | `03-foundation-gcp-vm-openclaw.md` | Technical foundation concept and requirements |
-| 06 | `04-truckops-business-domains-map.md` | Business domains, agents, and data mapping |
-| 07 | `05-on-demand-dispatch-intelligence-agent.md` | First operational specialist agent definition |
-| 08 | `06-data-memory-records-baseline.md` | Data structures, records, and storage |
-| 09 | `07-memory-learning-self-improvement-architecture.md` | Memory, learning, and self‑improvement design |
-| 10 | `08-development-testing-release-process.md` | Safe development and release workflows |
+| Canonical Display Name | Canonical ID | File |
+|---|---|---|
+| Orchestrator Agent | `orchestrator` | `04 - Agents & Features/ORCHESTRATOR AGENT.md` |
+| Dispatch Agent | `dispatch` | `04 - Agents & Features/DISPATCH AGENT.md` |
+| Document & Compliance Manager Agent | `document_compliance` | `04 - Agents & Features/DOCUMENT & COMPLIANCE MANAGER AGENT.md` |
+| Invoicing & Collections Agent | `invoicing_collections` | Planned |
+| Broker Intelligence Agent | `broker_intelligence` | Planned |
+| Maintenance Agent | `maintenance` | Planned |
+| Fuel & Expense Agent | `fuel_expense` | Planned |
+| Cash Flow Agent | `cash_flow` | Planned |
+| Profitability Agent | `profitability` | Planned |
+| Daily Briefing Agent | `daily_briefing` | Planned |
 
-*Note: The Orchestrator is listed first among foundation documents (in `02` folder) to signal its primacy.*
-
----
-
-## What This Bootstrap Package Does
-
-This repository serves as the **human‑readable definition** of the TruckOps system before the operational system exists. It provides:
-
-- **Vision & Purpose** — What TruckOps is and why it matters
-- **Architecture** — How everything is organized
-- **Foundation** — Technical infrastructure requirements
-- **Domains** — Business areas the system supports
-- **Orchestrator** — The central intelligence that owns the owner relationship
-- **Specialist Agents** — Capabilities that serve the Orchestrator
-- **Data** — What information is stored and where
-- **Memory** — How the system learns and improves
-- **Process** — How changes are safely made
-- **Execution** — Step‑by‑step build instructions
-
----
-
-## Development Philosophy
-
-TruckOps follows one core principle:
-
-> **Start small. Prove usefulness. Save the data. Build intelligence from real use.**
-
-This means:
-
-- Do not overbuild early versions
-- Build practical tools that reduce workload
-- Save data created by real use
-- Improve future versions based on actual outcomes
-- Features should never become disconnected applications
-- Every agent plugs into the same shared foundation
-- The Orchestrator is the intended owner interface; specialist agents are subordinate
+Legacy names such as "On-Demand Dispatch Intelligence Agent," "Dispatch Intelligence Agent," and "DISPATCH AGENT" refer to the same canonical agent: **Dispatch Agent** with canonical ID `dispatch`.
 
 ---
 
 ## Architecture Overview
 
 ```
-
-Owner
-↓
-┌─────────────────────────────┐
-│      ORCHESTRATOR AGENT     │  ← Single conversational interface
-│   (The Central Intelligence) │  ← Owns the relationship, memory, and learning
-└─────────────┬───────────────┘
-│
-┌──────────┼──────────┐
-│          │          │
-Dispatch  Broker   Invoice  ...  (Specialist agents invoked silently)
-│          │          │
-└──────────┼──────────┘
-│
-Shared Foundation (GCP + VM + OpenClaw + Workspace)
-│
-Data & Memory (SQLite + LanceDB + Wiki)
-
+Owner / User
+    ↓
+Orchestrator Agent
+    ↓
+Specialist Agents
+    ├── Dispatch Agent
+    ├── Document & Compliance Manager Agent
+    ├── Invoicing & Collections Agent
+    ├── Broker Intelligence Agent
+    ├── Maintenance Agent
+    ├── Fuel & Expense Agent
+    ├── Cash Flow Agent
+    ├── Profitability Agent
+    └── Daily Briefing Agent
+    ↓
+Shared Foundation
+    ├── GCP Project
+    ├── Compute Engine VM
+    ├── Debian 12
+    ├── Docker
+    ├── OpenClaw
+    └── Model Provider Endpoint
+    ↓
+Shared Data, Memory & Records Layer
+    ├── SQLite
+    ├── LanceDB
+    ├── YAML configuration
+    ├── Workspace folders
+    └── Audit logs
 ```
 
-**Key principle:** The owner never addresses specialists directly. All interactions flow through the Orchestrator, which decides when to invoke subordinate agents, synthesize information, or act alone.
-
----
-
-## Business Domains
-
-TruckOps supports these business domains:
-
-1. Company & Administration
-2. Compliance & Authority
-3. Trucks & Drivers
-4. Dispatch & Load Operations
-5. Broker & Customer Intelligence
-6. Documents & Records
-7. Invoicing & Collections
-8. Fuel, Expenses & Cost Control
-9. Maintenance & Equipment
-10. Cash Flow & Financial Planning
-11. Profitability & Performance
-12. Daily Briefing & Owner Command
-13. Data, Memory & Intelligence
-14. Development, Testing & Releases
-15. Future Productization & Market Readiness
-
----
-
-## Current Status
-
-| Component | Status |
-|-----------|--------|
-| Documentation (10 core notes + Orchestrator added) | ✅ Complete |
-| GCP Project | ❌ Not created |
-| Compute Engine VM | ❌ Not created |
-| OpenClaw Installation | ❌ Not installed |
-| TruckOps Workspace | ❌ Not created |
-| Model Provider Endpoint | ❌ Not configured |
-| Bootstrap Package Upload | ❌ Not uploaded |
-| Initialization Report | ❌ Not generated |
-| Orchestrator Agent | ❌ Not built |
-| Dispatch Agent V1 | ❌ Not built |
-
----
-
-## Next Steps
-
-1. **Execute** the Foundation Build Runbook (`02-foundation-build-runbook.md`)
-2. **Create** GCP project, VM, and install OpenClaw
-3. **Upload** this bootstrap package to the TruckOps workspace
-4. **Generate** the first TruckOps Initialization Report
-5. **Build** the Orchestrator Agent as the primary interface
-6. **Build** the On‑Demand Dispatch Intelligence Agent as the first specialist
-
----
-
-## How to Use This Repository
-
-### For AI Assistants
-This repository is designed to be read by AI instances. Start with `00-annex-ai-context-development-log.md` to understand the project context, then follow the numbered sequence. Pay special attention to the Orchestrator architecture – it defines the system's primary interaction model.
-
-### For Human Readers
-Start with `01-project-overview.md` to understand the vision, then explore the remaining notes based on your interest. The Orchestrator architecture (`01-orchestrator-agent-architecture.md`) provides the clearest picture of how the system will feel to use.
-
-### For Execution
-Start with `02-foundation-build-runbook.md` for step‑by‑step instructions to build the technical foundation, then build the Orchestrator and specialist agents in that order.
+The owner interacts with the Orchestrator Agent. Specialist agents do not become separate user-facing applications. They operate behind the Orchestrator and use the shared foundation, shared data, shared memory, shared configuration, and shared release process.
 
 ---
 
 ## Core Rules
 
-1. **Start small. Prove usefulness. Save the data. Build intelligence from real use.**
-2. Features should not become separate disconnected applications.
-3. Agent behavior should be driven by configuration files, not hard‑coded prompts.
-4. Credentials should never be stored in notes or public files.
-5. Data collected by one agent must be accessible to other agents.
-6. Development work should not interfere with production operations.
-7. Every meaningful change should be documented in a release note.
-8. **The Orchestrator is the intended owner interface; direct specialist access is for development/debugging only.**
+1. Start small. Prove usefulness. Save the data. Build intelligence from real use.
+2. Features must not become disconnected applications.
+3. Agent behavior must be configuration-driven where practical.
+4. Credentials must never be stored in notes, prompts, public files, or repository documentation.
+5. Data collected by one agent must be available to the shared intelligence layer unless explicitly restricted.
+6. Development and testing must not interfere with daily operations.
+7. Every meaningful change must be documented in release notes.
+8. The Orchestrator is the primary owner interface.
+9. Specialist agents are invoked by the Orchestrator, not directly by the owner during normal use.
+10. The system must remain useful before it becomes sophisticated.
+
+---
+
+## Immediate Execution Path
+
+### Phase 1 — Foundation
+
+1. Create the GCP project.
+2. Enable billing and required APIs.
+3. Provision the Compute Engine VM.
+4. Install Debian 12 updates.
+5. Install Docker.
+6. Install OpenClaw.
+7. Configure the model provider endpoint.
+8. Create `$TRUCKOPS_HOME`.
+9. Create the canonical workspace structure.
+10. Upload the bootstrap package.
+11. Generate the TruckOps Initialization Report.
+
+**Primary file:** `02 - Foundation & Infrastructure/06-foundation-execution-checklist.md`
+
+### Phase 2 — Orchestrator
+
+1. Implement the Orchestrator Agent from `04 - Agents & Features/ORCHESTRATOR AGENT.md`.
+2. Configure the agent registry.
+3. Connect the Orchestrator to OpenClaw.
+4. Connect the Orchestrator to shared data and memory.
+5. Run the first owner-command workflow.
+
+### Phase 3 — First Specialist
+
+1. Implement Dispatch Agent V1.
+2. Register Dispatch Agent with the Orchestrator.
+3. Run sample dispatch workflows with mock data.
+4. Save all routing decisions, load evaluations, and owner feedback.
+
+### Phase 4 — Daily Use MVP
+
+1. Add Document & Compliance Manager Agent.
+2. Add daily briefing.
+3. Add operational dashboard notes.
+4. Begin release logging and lessons-learned capture.
+
+---
+
+## MVP Definition
+
+TruckOps reaches MVP when:
+
+- Foundation is running on GCP VM.
+- OpenClaw is accessible.
+- Model provider endpoint responds.
+- TruckOps workspace exists.
+- Bootstrap package is uploaded.
+- Orchestrator Agent accepts owner input.
+- Orchestrator can invoke at least one specialist agent.
+- Dispatch Agent V1 can process a mock or manually entered load workflow.
+- Data is saved to the shared records layer.
+- Logs and release notes are created for changes.
 
 ---
 
 ## License
 
-This repository is the private intellectual property of the TruckOps owner. It is not publicly licensed for redistribution.
+This repository is private intellectual property of the TruckOps owner. It is not publicly licensed for redistribution.
 
 ---
 
 ## Contact
 
-For questions or contributions regarding this bootstrap package, refer to the owner.
+For questions or contributions, refer to the TruckOps owner.
 
 ---
 
-**Build the foundation. Initialize from the bootstrap. Then build the brain (Orchestrator) and the limbs (specialists).**
+Build the foundation. Initialize from the bootstrap. Implement the Orchestrator. Then build the first useful specialist agent.

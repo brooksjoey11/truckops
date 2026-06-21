@@ -1,0 +1,60 @@
+# TruckOps Workspace Configuration
+# Version: 1.0.0
+# Non-secret runtime configuration only.
+# Secrets must be stored in GCP Secret Manager.
+
+workspace:
+  name: truckops
+  version: "1.0.0"
+  description: TruckOps OpenClaw AI Operating System
+
+environment:
+  # Set TRUCKOPS_ENV to: development, staging, or production
+  default: development
+  allowed:
+    - development
+    - staging
+    - production
+
+paths:
+  # All paths are relative to $TRUCKOPS_HOME
+  # Set TRUCKOPS_HOME in your environment before using these paths
+  agents: agents/
+  config: config/
+  data: data/
+  memory: memory/
+  records: records/
+  logs: logs/
+  backups: backups/
+  releases: releases/
+  tools: tools/
+  bootstrap: bootstrap/
+  dev: dev/
+  staging: staging/
+  tests: tests/
+
+database:
+  sqlite_filename: truckops.sqlite
+  vector_directory: vector/
+  schemas_directory: schemas/
+  migrations_directory: migrations/
+
+logging:
+  format: json
+  level: INFO
+  destinations:
+    - file
+  # cloud_logging available when GCP is configured
+
+# Model provider is configured via environment variables:
+# MODEL_PROVIDER_NAME — label for the provider (e.g. "local", "anthropic")
+# MODEL_PROVIDER_ENDPOINT — full URL for the model endpoint
+# model_provider_api_key — stored in GCP Secret Manager
+model_provider:
+  timeout_seconds: 60
+  retry_attempts: 3
+  retry_backoff_seconds: 2
+
+backup:
+  daily_retention_days: 30
+  pre_release_retention_count: 10
